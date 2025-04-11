@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+  <script type="module" src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</head>
+<body>
+  <h1 id="welcome-text">Welcome</h1>
+
+  <div id="teacher-options" class="hidden">
+    <button onclick="showStartAttendance()">Start Attendance</button>
+    <button onclick="showCheckAnalysis()">Check Analysis</button>
+  </div>
+
+  <div id="start-attendance-form" class="hidden">
+    <h3>Start Attendance</h3>
+    <label>Course:
+      <select id="course">
+        <option value="DSA">DSA</option>
+        <option value="AIML">AIML</option>
+        <option value="DMS">DMS</option>
+      </select>
+    </label>
+    <label>Semester: <input type="number" id="semester" min="1" max="8" required></label>
+    <label>Classroom No: <input type="text" id="classroom" required></label>
+    <label>Time:
+      <select id="time-slot">
+        <option value="9am">9 AM</option>
+        <option value="10am">10 AM</option>
+        <option value="11am">11 AM</option>
+        <option value="12pm">12 PM</option>
+        <option value="1pm">1 PM</option>
+        <option value="2pm">2 PM</option>
+        <option value="3pm">3 PM</option>
+        <option value="4pm">4 PM</option>
+      </select>
+    </label>
+    <button onclick="startAnalysis()">Start Analysis</button>
+  </div>
+
+  <div id="check-analysis-section" class="hidden">
+    <h3>Check Analysis</h3>
+    <label>Select Date: <input type="date" id="analysis-date"></label>
+    <div id="analysis-result"></div>
+  </div>
+
+  <div id="data-display"></div>
+  <button onclick="logout()">Logout</button>
+</body>
+</html>
