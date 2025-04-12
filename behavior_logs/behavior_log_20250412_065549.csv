@@ -1,0 +1,11 @@
+timestamp,name,attention_state,gaze_status,posture_status,emotion,behavior,phone_detected
+2025-04-12 06:56:14,Unknown,DISTRACTED: Gaze undetected,Gaze undetected,Good Posture,happy,Attentive,False
+2025-04-12 06:56:22,Unknown,DISTRACTED: Gaze undetected,Gaze undetected,Good Posture,happy,Attentive,False
+2025-04-12 06:56:30,Unknown,DISTRACTED: Gaze undetected,Gaze undetected,Good Posture,neutral,Attentive,False
+2025-04-12 06:56:38,Unknown,DISTRACTED: Looking left,Looking left,Good Posture,sad,Attentive,False
+2025-04-12 06:56:49,Unknown,DISTRACTED: Poor posture,Gaze undetected,Bad Posture,angry,Attentive,False
+2025-04-12 06:56:57,Unknown,DISTRACTED: Poor posture,Gaze undetected,Bad Posture,surprise,Attentive,False
+2025-04-12 06:57:05,Unknown,DISTRACTED: Gaze undetected,Gaze undetected,Good Posture,neutral,Attentive,False
+2025-04-12 06:57:13,Unknown,DISTRACTED: Gaze undetected,Gaze undetected,Good Posture,neutral,Attentive,False
+2025-04-12 06:57:21,Unknown,DISTRACTED: Gaze undetected,Gaze undetected,Good Posture,neutral,Attentive,False
+2025-04-12 06:57:32,Unknown,DISTRACTED: Gaze undetected,Gaze undetected,Good Posture,neutral,Attentive,False

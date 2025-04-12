@@ -4,6 +4,12 @@ import csv
 import os
 import subprocess
 import sys
+from .camera_handler import (
+    get_camera_status,
+    start_analysis,
+    stop_analysis
+)
+
 
 main = Blueprint('main', __name__)
 
@@ -60,3 +66,17 @@ def verify_token():
 def dashboard():
     return render_template('dashboard.html')
 
+def camera_status_route():
+    return jsonify(get_camera_status())
+
+@main.route('/start-analyze')
+def start_analyze_route():
+    return start_analysis()
+
+@main.route('/stop-analyze')
+def stop_analyze_route():
+    return stop_analysis()
+
+@main.route('/teacher')
+def teacher_dashboard():
+    return render_template('teacher_dashboard.html')  # You'll create this HTML next

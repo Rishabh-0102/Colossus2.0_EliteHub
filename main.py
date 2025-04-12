@@ -1,12 +1,12 @@
-import sys
-import os
-# sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
-
 from app import create_app
-from app.routes import main  # add this line
+from app.camera_handler import start_video_capture
 
+# Start the camera thread before Flask app starts
+start_video_capture()
+
+# Create the app (this registers the blueprint inside __init__.py)
 app = create_app()
-# app.register_blueprint(main)
+
 
 if __name__ == "__main__":
     app.run(debug=True)

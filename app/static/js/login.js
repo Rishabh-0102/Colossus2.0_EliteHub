@@ -29,7 +29,15 @@ form.addEventListener("submit", async (e) => {
     const userData = userDoc.data();
     localStorage.setItem("userName", userData.name || "User");
     localStorage.setItem("userRole", userData.role);
-    window.location.href = "dashboard";
+
+    // 🔀 Redirect based on role
+    if (userData.role === "teacher") {
+      window.location.href = "/teacher";
+    } else if (userData.role === "student") {
+      window.location.href = "/dashboard";
+    } else {
+      alert("Unknown user role.");
+    }
 
   } catch (error) {
     alert(error.message);

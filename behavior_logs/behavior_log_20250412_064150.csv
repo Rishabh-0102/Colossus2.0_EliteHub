@@ -1,0 +1,30 @@
+timestamp,name,attention_state,gaze_status,posture_status,emotion,behavior,phone_detected
+2025-04-12 06:42:50,Unknown,UNKNOWN,Gaze undetected,Unknown,Unknown,Unknown,False
+2025-04-12 06:43:04,Unknown,DISTRACTED: Gaze undetected,Gaze undetected,Unknown,neutral,Attentive,False
+2025-04-12 06:43:12,Unknown,DISTRACTED: Looking left,Looking left,Unknown,fear,Attentive,False
+2025-04-12 06:43:20,Unknown,DISTRACTED: Gaze undetected,Gaze undetected,Unknown,neutral,Attentive,False
+2025-04-12 06:43:28,Unknown,DISTRACTED: Gaze undetected,Gaze undetected,Unknown,happy,Attentive,False
+2025-04-12 06:43:36,Unknown,DISTRACTED: Gaze undetected,Gaze undetected,Unknown,neutral,Attentive,False
+2025-04-12 06:43:43,Unknown,DISTRACTED: Looking left,Looking left,Unknown,surprise,Attentive,False
+2025-04-12 06:43:51,Unknown,DISTRACTED: Gaze undetected,Gaze undetected,Unknown,fear,Attentive,False
+2025-04-12 06:43:58,Unknown,DISTRACTED: Gaze undetected,Gaze undetected,Unknown,sad,Attentive,False
+2025-04-12 06:44:05,Unknown,DISTRACTED: Gaze undetected,Gaze undetected,Unknown,neutral,Attentive,False
+2025-04-12 06:44:13,Unknown,DISTRACTED: Gaze undetected,Gaze undetected,Unknown,neutral,Attentive,False
+2025-04-12 06:44:20,Unknown,DISTRACTED: Gaze undetected,Gaze undetected,Unknown,neutral,Attentive,False
+2025-04-12 06:44:28,Unknown,DISTRACTED: Gaze undetected,Gaze undetected,Unknown,neutral,Attentive,False
+2025-04-12 06:44:35,Unknown,DISTRACTED: Gaze undetected,Gaze undetected,Unknown,neutral,Attentive,False
+2025-04-12 06:44:43,Unknown,DISTRACTED: Gaze undetected,Gaze undetected,Unknown,neutral,Attentive,False
+2025-04-12 06:44:51,Unknown,DISTRACTED: Looking left,Looking left,Unknown,sad,Attentive,False
+2025-04-12 06:44:59,Unknown,DISTRACTED: Gaze undetected,Gaze undetected,Unknown,angry,Attentive,False
+2025-04-12 06:45:07,Unknown,DISTRACTED: Gaze undetected,Gaze undetected,Unknown,neutral,Attentive,False
+2025-04-12 06:45:15,Unknown,DISTRACTED: Gaze undetected,Gaze undetected,Unknown,happy,Attentive,False
+2025-04-12 06:45:22,Unknown,DISTRACTED: Gaze undetected,Gaze undetected,Unknown,happy,Attentive,False
+2025-04-12 06:45:30,Unknown,DISTRACTED: Gaze undetected,Gaze undetected,Unknown,neutral,Attentive,False
+2025-04-12 06:45:37,Unknown,DISTRACTED: Gaze undetected,Gaze undetected,Unknown,neutral,Attentive,False
+2025-04-12 06:45:45,Unknown,DISTRACTED: Gaze undetected,Gaze undetected,Unknown,neutral,Attentive,False
+2025-04-12 06:45:52,Unknown,DISTRACTED: Gaze undetected,Gaze undetected,Unknown,neutral,Attentive,False
+2025-04-12 06:46:00,Unknown,DISTRACTED: Gaze undetected,Gaze undetected,Unknown,fear,Attentive,False
+2025-04-12 06:46:07,Unknown,DISTRACTED: Gaze undetected,Gaze undetected,Unknown,neutral,Attentive,False
+2025-04-12 06:46:14,Unknown,DISTRACTED: Gaze undetected,Gaze undetected,Unknown,neutral,Attentive,False
+2025-04-12 06:46:22,Unknown,DISTRACTED: Gaze undetected,Gaze undetected,Unknown,neutral,Attentive,False
+2025-04-12 06:46:30,Unknown,DISTRACTED: Gaze undetected,Gaze undetected,Unknown,fear,Attentive,False

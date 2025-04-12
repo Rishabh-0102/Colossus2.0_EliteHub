@@ -5,12 +5,21 @@ import os
 import pickle
 import time
 import csv
+import argparse
 from datetime import datetime
 
+# Parse command line arguments
+parser = argparse.ArgumentParser(description='Face recognition attendance system')
+parser.add_argument('--frame-source', choices=['camera', 'file'], default='camera',
+                    help='Source of frames: camera or shared file')
+parser.add_argument('--frame-path', default='shared_frame.jpg',
+                    help='Path to the shared frame file when using file as source')
+args = parser.parse_args()
+
 # Config
-KNOWN_FACES_DIR = "data/loksabha-img-mini"
-VIDEO_PATH = "data/yt-lok2-mini.mp4"
-ENCODINGS_FILE = "encodings.pkl"
+KNOWN_FACES_DIR = "data/imageAttendance"
+VIDEO_PATH = 1  # Used only if frame-source is camera
+ENCODINGS_FILE = "encodings4.pkl"
 ATTENDANCE_FILE = "Attendance.csv"
 
 known_face_encodings = []
@@ -20,9 +29,9 @@ known_face_names = []
 if os.path.exists(ENCODINGS_FILE):
     with open(ENCODINGS_FILE, "rb") as f:
         known_face_encodings, known_face_names = pickle.load(f)
-    print("Loaded known face encodings from cache")
+    print("✅ Loaded known face encodings from cache")
 else:
-    print(" Encoding known faces...")
+    print("🔄 Encoding known faces...")
     for filename in os.listdir(KNOWN_FACES_DIR):
         if filename.lower().endswith(('.jpg', '.png', '.jpeg')):
             name = os.path.splitext(filename)[0]
@@ -32,32 +41,31 @@ else:
             if encodings:
                 known_face_encodings.append(encodings[0])
                 known_face_names.append(name)
-                print(f" Encoded: {filename}")
+                print(f"✅ Encoded: {filename}")
             else:
-                print(f" No face found in {filename}, skipping.")
+                print(f"❌ No face found in {filename}, skipping.")
     
     # Save encodings to file
     with open(ENCODINGS_FILE, "wb") as f:
         pickle.dump((known_face_encodings, known_face_names), f)
-    print(f" Encoding completed and saved to '{ENCODINGS_FILE}'")
+    print(f"✅ Encoding completed and saved to '{ENCODINGS_FILE}'")
 
 # Try to load DNN face detector models
 print("Loading face detection models...")
 use_dnn = False
 try:
-    # Download these files if you don't have them:
-    # https://github.com/opencv/opencv/blob/master/samples/dnn/face_detector/deploy.prototxt
-    # https://github.com/opencv/opencv_3rdparty/blob/dnn_samples_face_detector_20170830/res10_300x300_ssd_iter_140000.caffemodel
+    # Check if files exist before loading
     modelFile = "res10_300x300_ssd_iter_140000.caffemodel"
     configFile = "deploy.prototxt"
     
-    # Check if files exist before loading
     if os.path.exists(modelFile) and os.path.exists(configFile):
         net = cv2.dnn.readNetFromCaffe(configFile, modelFile)
         use_dnn = True
         print("Using DNN face detector")
     else:
-        raise FileNotFoundError("DNN model files not found")
+        print("DNN model files not found. Download these files if you want to use DNN detection:")
+        print("- deploy.prototxt")
+        print("- res10_300x300_ssd_iter_140000.caffemodel")
 except Exception as e:
     print(f"Warning: Could not load DNN model: {e}")
     print("Falling back to Haar Cascade detector")
@@ -67,17 +75,12 @@ face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_fronta
 profile_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_profileface.xml')
 
 # Function to mark attendance
-# Function to mark attendance
-
 def mark_attendance(name):
     if not name or name == "Unknown":
         return
     
     current_date = datetime.now().strftime('%Y-%m-%d')
     current_time = datetime.now().strftime('%H:%M:%S')
-    
-    # Create a lock file to prevent concurrent access issues
-    lock_file = f"{ATTENDANCE_FILE}.lock"
     
     # Create the attendance file with headers if it doesn't exist
     if not os.path.isfile(ATTENDANCE_FILE):
@@ -97,7 +100,7 @@ def mark_attendance(name):
             for row in reader:
                 if len(row) >= 3 and row[0] == name and row[2] == current_date:
                     already_marked = True
-                    print(f"!! {name} already marked present today!")
+                    print(f"⚠️ {name} already marked present today!")
                     break
         
         # If not already marked, add the new entry
@@ -106,7 +109,7 @@ def mark_attendance(name):
             with open(ATTENDANCE_FILE, 'a', newline='') as f:
                 writer = csv.writer(f)
                 writer.writerow([name, current_time, current_date])
-            print(f" Marked attendance for: {name}")
+            print(f"✅ Marked attendance for: {name}")
             
     except Exception as e:
         print(f"Error marking attendance: {e}")
@@ -170,51 +173,188 @@ def detect_faces(frame):
     
     return face_locations
 
-# Main processing function
-def process_video():
-    print(" process_video() started!")
-    print(" Opening video file...")
-    # Start video
-    video_capture = cv2.VideoCapture(VIDEO_PATH)
-    if not video_capture.isOpened():
-        print("[*] Reading frame...")
+def get_frame_from_file(file_path):
+    """Read frame from file if it exists and is not being written to"""
+    if not os.path.exists(file_path):
+        return None
+    try:
+        # Read the frame
+        frame = cv2.imread(file_path)
+        return frame
+    except Exception as e:
+        print(f"Error reading frame from file: {e}")
+        return None
 
+def process_video_from_file(file_path):
+    """Process video by reading frames from a file"""
+    
+    # Initialize stats
+    start_time = time.time()
+    frames_processed = 0
+    faces_detected = 0
+    last_update_time = time.time()
+    frame_interval = 0.1  # Check for frame update every 100ms
+    skip_counter = 0
+    frame_skip = 3  # Process every 3rd frame
+    
+    # Initialize window
+    cv2.namedWindow('Face Recognition with Attendance', cv2.WINDOW_NORMAL)
+    
+    # Initialize recognition counter
+    recognition_interval = 5  # Process face recognition every 5 frames
+    recognition_counter = 0
+    
+    try:
+        while True:
+            current_time = time.time()
+            
+            # Read the latest frame at regular intervals
+            if current_time - last_update_time >= frame_interval:
+                frame = get_frame_from_file(file_path)
+                last_update_time = current_time
+                
+                if frame is None:
+                    print("Waiting for frames...")
+                    time.sleep(0.5)
+                    continue
+                
+                # Initialize display frame and skip counter
+                display_frame = frame.copy()
+                skip_counter += 1
+                
+                # Only process every nth frame
+                if skip_counter % frame_skip != 0:
+                    # Just show frame without processing
+                    cv2.imshow('Face Recognition with Attendance', display_frame)
+                    if cv2.waitKey(1) & 0xFF == 27:  # ESC key
+                        break
+                    continue
+                
+                # Face recognition happens at a different interval
+                do_recognition = (recognition_counter % recognition_interval == 0)
+                
+                # Detect faces
+                face_locations = detect_faces(frame)
+                faces_detected += len(face_locations)
+                
+                # Process faces for recognition
+                if face_locations and do_recognition and known_face_encodings:
+                    # Get face encodings for detected faces
+                    face_encodings = face_recognition.face_encodings(frame, face_locations)
+                    
+                    # Match each face
+                    for (top, right, bottom, left), face_encoding in zip(face_locations, face_encodings):
+                        # Try to match against known faces
+                        matches = face_recognition.compare_faces(known_face_encodings, face_encoding, tolerance=0.6)
+                        name = "Unknown"
+                        
+                        # If match found, use the name of the first match
+                        if True in matches:
+                            match_index = matches.index(True)
+                            name = known_face_names[match_index]
+                            mark_attendance(name)
+                        
+                        # Draw on display frame
+                        cv2.rectangle(display_frame, (left, top), (right, bottom), (0, 255, 0), 2)
+                        cv2.putText(display_frame, name, (left, top - 10), 
+                                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+                elif face_locations:
+                    # Just draw boxes without recognition
+                    for (top, right, bottom, left) in face_locations:
+                        cv2.rectangle(display_frame, (left, top), (right, bottom), (255, 0, 0), 2)
+                
+                # Display performance metrics
+                elapsed_time = current_time - start_time
+                fps_text = f"FPS: {frames_processed / max(1, elapsed_time):.1f}"
+                cv2.putText(display_frame, fps_text, (10, 30), 
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+                
+                # Show the frame
+                cv2.imshow('Face Recognition with Attendance', display_frame)
+                frames_processed += 1
+                recognition_counter += 1
+                
+                # Handle keyboard input
+                key = cv2.waitKey(1) & 0xFF
+                if key == 27:  # ESC
+                    break
+    
+    except Exception as e:
+        print(f"Error during processing: {e}")
+        import traceback
+        traceback.print_exc()
+    finally:
+        cv2.destroyAllWindows()
+        
+        print("\n--- Performance Summary ---")
+        print(f"Total frames processed: {frames_processed}")
+        print(f"Total faces detected: {faces_detected}")
+        print(f"Average FPS: {frames_processed / max(1, time.time() - start_time):.2f}")
 
-        print(f" Error: Could not open video at {VIDEO_PATH}")
+def process_video_from_camera():
+    """Process video directly from camera (original method)"""
+    # Try multiple camera indices if the default doesn't work
+    video_capture = None
+    for camera_index in range(3):  # Try indices 0, 1, 2
+        video_capture = cv2.VideoCapture(camera_index)
+        if video_capture.isOpened():
+            print(f"Successfully opened camera at index {camera_index}")
+            break
+        video_capture.release()
+        
+    if not video_capture or not video_capture.isOpened():
+        print(f"❌ Error: Could not open any camera. Please check connections and permissions.")
         return
 
+    # Get camera properties
     fps = video_capture.get(cv2.CAP_PROP_FPS)
     width = int(video_capture.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    total_frames = int(video_capture.get(cv2.CAP_PROP_FRAME_COUNT))
     
-    if total_frames <= 0:  # For webcam, total_frames is usually 0
-        total_frames = float('inf')
-
-    frame_skip = 5  # Process every 3rd frame for better performance
+    frame_skip = 5  # Process every 5th frame for better performance
     start_time = time.time()
     frames_processed = 0
     faces_detected = 0
     
     # Recognition settings
-    recognition_interval = 10 # Process face recognition every 30 frames
+    recognition_interval = 10  # Process face recognition every 10 frames
     recognition_counter = 0
     
-    # Create window
-    cv2.namedWindow('Face Recognition with Attendance', cv2.WINDOW_NORMAL)
-    cv2.resizeWindow('Face Recognition with Attendance', width, height)
-
     print(f"Starting video processing: {width}x{height} at {fps:.2f} FPS")
 
     try:
         frame_counter = 0
+        consecutive_errors = 0
+        max_consecutive_errors = 5  # Maximum number of consecutive errors before giving up
+        
         while True:
+            # Try to read a frame
             ret, frame = video_capture.read()
+            
+            # If frame reading failed
             if not ret:
-                break
+                consecutive_errors += 1
+                print(f"Failed to read frame - attempt {consecutive_errors}/{max_consecutive_errors}")
+                
+                if consecutive_errors >= max_consecutive_errors:
+                    print("Too many consecutive frame reading errors. Exiting.")
+                    break
+                    
+                # Try to reconnect to the camera
+                time.sleep(1)
+                video_capture.release()
+                video_capture = cv2.VideoCapture(camera_index)
+                continue
+            
+            # Reset error counter on successful frame read
+            consecutive_errors = 0
                 
             # Process every nth frame for detection
             if frame_counter % frame_skip == 0:
+                # Create window if it doesn't exist
+                cv2.namedWindow('Face Recognition with Attendance', cv2.WINDOW_NORMAL)
+                cv2.resizeWindow('Face Recognition with Attendance', width, height)
+                
                 # Always show current frame
                 display_frame = frame.copy()
                 
@@ -257,12 +397,6 @@ def process_video():
                 cv2.putText(display_frame, fps_text, (10, 30), 
                             cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
                 
-                # For video files, show progress
-                if total_frames < float('inf'):
-                    progress = f"Frame: {frame_counter}/{total_frames} ({100*frame_counter/total_frames:.1f}%)"
-                    cv2.putText(display_frame, progress, (10, 60), 
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-                
                 # Show the frame
                 cv2.imshow('Face Recognition with Attendance', display_frame)
                 frames_processed += 1
@@ -274,9 +408,6 @@ def process_video():
             key = cv2.waitKey(1)
             if key == 27:  # ESC
                 break
-            elif key == ord('s') and total_frames < float('inf'):  # Skip 5 seconds (for video files)
-                frame_counter += int(fps * 5)
-                video_capture.set(cv2.CAP_PROP_POS_FRAMES, frame_counter)
                 
     except Exception as e:
         print(f"Error during processing: {e}")
@@ -291,13 +422,10 @@ def process_video():
         print(f"Total faces detected: {faces_detected}")
         print(f"Average FPS: {frames_processed / max(1, time.time() - start_time):.2f}")
 
-    print(" Finished processing video.")
-
-
 if __name__ == "__main__":
-    process_video()
-
-
-print(" attendance_script.py is being run directly")
-
-process_video()
+    if args.frame_source == 'file':
+        print(f"Reading frames from file: {args.frame_path}")
+        process_video_from_file(args.frame_path)
+    else:
+        print("Reading frames directly from camera")
+        process_video_from_camera()

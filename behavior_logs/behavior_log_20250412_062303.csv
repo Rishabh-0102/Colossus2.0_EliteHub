@@ -1,0 +1,4 @@
+timestamp,name,attention_state,gaze_status,posture_status,emotion,behavior,phone_detected
+2025-04-12 06:23:12,Unknown,AWAY: No face detected,Unknown,Unknown,Unknown,Unknown,False
+2025-04-12 06:23:17,Unknown,AWAY: No face detected,Unknown,Unknown,Unknown,Unknown,False
+2025-04-12 06:23:19,Unknown,AWAY: No face detected,Unknown,Unknown,Unknown,Unknown,False

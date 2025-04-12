@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VisionCapture - Teacher Dashboard</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #3498db;
+      --primary-dark: #2980b9;
+      --secondary: #2c3e50;
+      --light: #f8f9fa;
+      --gray: #e9ecef;
+      --success: #2ecc71;
+      --danger: #e74c3c;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--light);
+      color: var(--secondary);
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    
+    header {
+      background-color: var(--secondary);
+      color: white;
+      padding: 1rem 0;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    
+    .logo i {
+      margin-right: 10px;
+    }
+    
+    .user-info {
+      display: flex;
+      align-items: center;
+    }
+    
+    .user-name {
+      margin-right: 15px;
+    }
+    
+    .logout-btn {
+      background: transparent;
+      border: 1px solid white;
+      color: white;
+      padding: 5px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .logout-btn:hover {
+      background: rgba(255,255,255,0.1);
+    }
+    
+    main {
+      padding: 2rem 0;
+    }
+    
+    .welcome-section {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    
+    .welcome-section h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      color: var(--secondary);
+    }
+    
+    .welcome-section p {
+      color: #666;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .main-options {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin: 2rem 0;
+    }
+    
+    .option-card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      width: 250px;
+      text-align: center;
+      transition: transform 0.3s, box-shadow 0.3s;
+      cursor: pointer;
+    }
+    
+    .option-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+    
+    .option-icon {
+      font-size: 3rem;
+      color: var(--primary);
+      margin: 1.5rem 0;
+    }
+    
+    .option-title {
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      color: var(--secondary);
+    }
+    
+    .option-desc {
+      padding: 0 1rem 1.5rem;
+      color: #666;
+      font-size: 0.9rem;
+    }
+    
+    .content-section {
+      display: none;
+    }
+    
+    .section-visible {
+      display: block;
+      animation: fadeIn 0.5s;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    h3 {
+      margin-bottom: 1.5rem;
+      color: var(--secondary);
+      border-bottom: 2px solid var(--gray);
+      padding-bottom: 0.5rem;
+    }
+    
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+    
+    select, input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+    
+    .btn {
+      background-color: var(--primary);
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    
+    .btn:hover {
+      background-color: var(--primary-dark);
+    }
+    
+    .btn-full {
+      width: 100%;
+    }
+    
+    .btn-action {
+      margin-top: 1rem;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      background-color: white;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    
+    th {
+      background-color: var(--gray);
+      font-weight: 600;
+    }
+    
+    tr:hover {
+      background-color: rgba(52, 152, 219, 0.05);
+    }
+    
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    
+    .status-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+    
+    .status-active {
+      background-color: var(--success);
+    }
+    
+    .status-inactive {
+      background-color: var(--danger);
+    }
+    
+    .back-button {
+      background-color: transparent;
+      border: none;
+      color: var(--primary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    
+    .back-button i {
+      margin-right: 5px;
+    }
+    
+    @media (max-width: 768px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .main-options {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .option-card {
+        width: 100%;
+        max-width: 300px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container header-content">
+      <div class="logo">
+        <i class="fas fa-video"></i> VisionCapture
+      </div>
+      <div class="user-info">
+        <span class="user-name" id="user-display">Welcome, Teacher</span>
+        <button class="logout-btn" onclick="logout()">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+      </div>
+    </div>
+  </header>
+  
+  <main class="container">
+    <div class="welcome-section">
+      <h1 id="welcome-text">Teacher Dashboard</h1>
+      <p>Manage classroom attendance with face recognition</p>
+    </div>
+    
+    <!-- Main Options - Two Buttons as Required -->
+    <div class="main-options" id="teacher-options">
+      <div class="option-card" onclick="showStartAttendance()">
+        <div class="option-icon">
+          <i class="fas fa-play-circle"></i>
+        </div>
+        <h3 class="option-title">Start Attendance</h3>
+        <p class="option-desc">Begin a new attendance tracking session for your class</p>
+      </div>
+      
+      <div class="option-card" onclick="showCheckAnalysis()">
+        <div class="option-icon">
+          <i class="fas fa-chart-bar"></i>
+        </div>
+        <h3 class="option-title">Check Analysis</h3>
+        <p class="option-desc">View and analyze previous attendance records</p>
+      </div>
+    </div>
+    
+    <!-- Start Attendance Section -->
+    <div class="content-section" id="start-attendance-form">
+      <button class="back-button" onclick="showMainOptions()">
+        <i class="fas fa-arrow-left"></i> Back to Options
+      </button>
+      
+      <div class="card">
+        <h3>Start Attendance Session</h3>
+        
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="course">Course:</label>
+            <select id="course" class="form-control">
+              <option value="DSA">Data Structures & Algorithms</option>
+              <option value="AIML">AI & Machine Learning</option>
+              <option value="DMS">Database Management Systems</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="semester">Semester:</label>
+            <input type="number" id="semester" min="1" max="8" value="1" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="classroom">Classroom No:</label>
+            <input type="text" id="classroom" required placeholder="e.g. A-101">
+          </div>
+          
+          <div class="form-group">
+            <label for="time-slot">Time Slot:</label>
+            <select id="time-slot">
+              <option value="9am">9:00 AM</option>
+              <option value="10am">10:00 AM</option>
+              <option value="11am">11:00 AM</option>
+              <option value="12pm">12:00 PM</option>
+              <option value="1pm">1:00 PM</option>
+              <option value="2pm">2:00 PM</option>
+              <option value="3pm">3:00 PM</option>
+              <option value="4pm">4:00 PM</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="status-indicator" id="camera-status">
+          <div class="status-dot status-inactive"></div>
+          <span>Camera inactive</span>
+        </div>
+        
+        <button class="btn btn-full btn-action" onclick="startAnalysis()">
+          <i class="fas fa-play"></i> Start Attendance Tracking
+        </button>
+      </div>
+    </div>
+    
+    <!-- Check Analysis Section -->
+    <div class="content-section" id="check-analysis-section">
+      <button class="back-button" onclick="showMainOptions()">
+        <i class="fas fa-arrow-left"></i> Back to Options
+      </button>
+      
+      <div class="card">
+        <h3>Attendance Records</h3>
+        
+        <div class="form-group">
+          <label for="analysis-date">Select Date:</label>
+          <input type="date" id="analysis-date">
+        </div>
+        
+        <button class="btn" onclick="fetchAttendanceData()">
+          <i class="fas fa-search"></i> View Records
+        </button>
+        
+        <div id="analysis-result" style="margin-top: 20px;">
+          <table id="attendance-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Time</th>
+                <th>Date</th>
+                <th>Course</th>
+              </tr>
+            </thead>
+            <tbody id="attendance-data">
+              <!-- Data will be inserted here via JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Set user name from Firebase auth
+    function setUserName(name) {
+      document.getElementById('user-display').textContent = `Welcome, ${name}`;
+      document.getElementById('welcome-text').textContent = `Welcome, ${name}`;
+    }
+    
+    // Show/hide different sections
+    function showMainOptions() {
+      hideAllSections();
+      document.getElementById('teacher-options').classList.add('section-visible');
+    }
+    
+    function showStartAttendance() {
+      hideAllSections();
+      document.getElementById('start-attendance-form').classList.add('section-visible');
+    }
+    
+    function showCheckAnalysis() {
+      hideAllSections();
+      document.getElementById('check-analysis-section').classList.add('section-visible');
+      
+      // Set default date to today
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('analysis-date').value = today;
+    }
+    
+    function hideAllSections() {
+      const sections = document.querySelectorAll('.content-section, #teacher-options');
+      sections.forEach(section => {
+        section.classList.remove('section-visible');
+      });
+    }
+    
+    // Start attendance analysis
+    function startAnalysis() {
+      const course = document.getElementById('course').value;
+      const semester = document.getElementById('semester').value;
+      const classroom = document.getElementById('classroom').value;
+      const timeSlot = document.getElementById('time-slot').value;
+      
+      if (!semester || !classroom) {
+        alert('Please fill in all required fields');
+        return;
+      }
+      
+      // Update UI to show camera is active
+      const statusDot = document.querySelector('.status-dot');
+      const statusText = document.querySelector('.status-indicator span');
+      
+      statusDot.classList.remove('status-inactive');
+      statusDot.classList.add('status-active');
+      statusText.textContent = 'Camera active - Attendance tracking in progress';
+      
+      // Call the backend API to start analysis
+      fetch('/start-analyze')
+        .then(response => response.json())
+        .then(data => {
+          console.log('Analysis started:', data);
+        })
+        .catch(error => {
+          console.error('Error starting analysis:', error);
+          alert('Error starting analysis. Please try again.');
+          
+          // Reset status on error
+          statusDot.classList.remove('status-active');
+          statusDot.classList.add('status-inactive');
+          statusText.textContent = 'Camera inactive';
+        });
+    }
+    
+    // Fetch attendance data for selected date
+    function fetchAttendanceData() {
+      const date = document.getElementById('analysis-date').value;
+      
+      // In a real app, this would fetch from the server
+      // For demo, we'll simulate data
+      const attendanceData = [
+        ['John Doe', '09:15:22', date, 'DSA'],
+        ['Jane Smith', '09:16:05', date, 'DSA'],
+        ['Michael Johnson', '09:17:30', date, 'DSA']
+      ];
+      
+      const tableBody = document.getElementById('attendance-data');
+      tableBody.innerHTML = '';
+      
+      attendanceData.forEach(row => {
+        const tr = document.createElement('tr');
+        row.forEach(cell => {
+          const td = document.createElement('td');
+          td.textContent = cell;
+          tr.appendChild(td);
+        });
+        tableBody.appendChild(tr);
+      });
+    }
+    
+    // Logout function
+    function logout() {
+      // Clear any auth tokens
+      localStorage.removeItem('authToken');
+      // Redirect to login page
+      window.location.href = '/login';
+    }
+    
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', function() {
+      // Check if user is logged in
+      const authToken = localStorage.getItem('authToken');
+      if (!authToken) {
+        window.location.href = '/login';
+        return;
+      }
+      
+      // Set teacher name (in a real app, this would come from Firebase)
+      setUserName('Teacher');
+      
+      // Show main options by default
+      showMainOptions();
+    });
+  </script>
+</body>
+</html>
